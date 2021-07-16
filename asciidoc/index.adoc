@@ -1,11 +1,10 @@
 = Riflex 4.21.0 User Guide
 Sintef Ocean
 :toc:
-:toclevels: 5
+:toclevels: 4
 :sectnums:
-:sectnumlevels: 5
+:sectnumlevels: 4
 :stem: latexmath
-:stylesheet: style.css
 
 include::introduction.adoc[]
 

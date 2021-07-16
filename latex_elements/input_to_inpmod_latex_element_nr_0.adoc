@@ -1,0 +1,37 @@
+The following is a CRS1 cross section example. Subsequent sections
+provide details and further options.
+
+[source,riflex]
+----
+'**********************************************************************
+ NEW COMPONENT CRS1
+'**********************************************************************
+'                             units:  Mg kN m C
+'cmptyp-id temp alpha beta
+ Xaxdmp    /    /     /
+'ams         ae        ai   rgyr   ast wst dst thst rextcnt rintcnt
+ 0.3         0.0415    0    0.080  /   /   /   /    /       /
+'iea  iej  igt ipress imf harpar
+ 3    1    1   0      0   0
+'
+' Axial force/strain of tensioner
+' Fx     eps=L/L0-1=x/L0   (L0=1 m, x is tensioner stroke)
+  1000    0.0   &
+  1100    5.0   &
+  1400   10.0
+'ei              gas
+ 2.84E8          0
+'gtminus
+ 2.19E8
+'DAMP chtype1 [chtype2 chtype3 chtype4]
+ DAMP  AXDMP
+'idmpaxi expdmp
+ 1       1.737
+'dmpaxi
+ 30.00
+' icode=2 => dimensionless hydrodynamic force coefficients
+'cqx  cqy    cax  cay    clx  cly    icode  d       scfkn  scfkt
+ 0    1.0    0    1.0      0    0    2      230E-3  1.0    1.0
+'tb              ycurmx
+ 1600            0.1
+----

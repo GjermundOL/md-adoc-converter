@@ -204,6 +204,8 @@ def pull_images(src_file):
 
         with open(dst_file, mode = "w+", encoding = "utf-8") as file_2:
             
+            latex_element_nr = 0
+
             for line in file_1:
                 
                 if "\\anchor" in line or "![" in line:
@@ -219,7 +221,7 @@ def pull_images(src_file):
 
                             if "![" in next_line:
                                 
-                                img_data = re.split("\!\[|\]\(\@ref |\)\n", next_line)
+                                img_data = re.split("\!\[|\]\(|\)\n", next_line)
                             
                             else:
                                 
@@ -227,26 +229,32 @@ def pull_images(src_file):
 
                                 if "![" in next_line:
                                 
-                                    img_data = re.split("\!\[|\]\(\@ref |\)", next_line)
+                                    img_data = re.split("\!\[|\]\(|\)", next_line)
 
                         else:
                             
-                            img_data = re.split("\!\[|\]\(\@ref |\)", line)
+                            img_data = re.split("\!\[|\]\(|\)", line)
 
                         try:
                             img.title = img_data[1].strip()
                         except:
                             print(line)
 
-                        illegal_title_symbols = [",", ".", "-", "(", "\)", ")"]
+                        illegal_title_symbols = [",", ".", "-", "(", ")"]
 
                         for symb in illegal_title_symbols:
                             
                             if symb in img.title:
 
-                                img.title = img.title.replace(symb, "")
+                                img.title = img.title.replace(symb, "\\" + symb)
+                        
+                        if "figures" in img_data[2]:
 
-                        img.path = "../" + img_data[2]
+                            img.path = "../" + img_data[2].replace("@ref ", "")
+
+                        else:
+                            
+                            img.path = "../figures/" + img_data[2].replace("@ref ", "")
 
                         file_2.write(img.title + "\n")
 
@@ -265,6 +273,26 @@ def pull_images(src_file):
                     
                     except:
                         pass
+
+                elif line.strip() == "\\latexonly":
+
+                    element_name = name + "_latex_element_nr_" + str(latex_element_nr)
+                    dst_latex_file = os.path.join(os.path.dirname(src_file), "..", "..", "latex_elements", element_name + ".tex")
+                    dst_adoc_file = os.path.join(os.path.dirname(src_file), "..", "..", "latex_elements", element_name + ".adoc")
+
+                    os.makedirs(os.path.dirname(dst_latex_file), exist_ok = True)
+                    
+                    file_2.write(element_name)
+
+                    with open(dst_latex_file, mode = "w+", encoding = "utf-8") as file_3:
+                        
+                        next_line = next(file_1)
+
+                        while "\\endlatexonly" not in next_line:
+                            file_3.write(next_line)
+                            next_line = next(file_1)
+                    
+                    subprocess.call(['pandoc', dst_latex_file, "-s", "-o", dst_adoc_file])
 
 
                 else:
@@ -296,24 +324,36 @@ def push_images(src_file, image_list, release_notes = False):
                         first_line = False
                         line = next(file_1)
 
-                    elif "==" in line:
+                    elif "==" in line[:1]:
                         file_2.write("[discrete]\n")
 
                 image = False
-                
+                latex_element = False
                 for img in image_list:
 
                     if img.title == line.strip():
+                        
+                        image = True
 
                         block_img = "." + img.title + "\nimage::" + img.path + "[" + img.title + "," + str(img.width) + "]\n"
 
                         file_2.write(block_img)
 
-                        image = True
-
                         break
+                
+                if "_latex_element_nr_" in line:
 
-                if image == False:
+                    latex_element = True
+
+                    adoc_file = os.path.join(os.path.dirname(src_file), "..", "..", "latex_elements", line.strip() + ".adoc")
+
+                    with open(adoc_file, mode = "r", encoding = "utf-8") as file_3:
+
+                        for adoc_line in file_3:
+
+                            file_2.write(adoc_line)
+
+                if image == False and latex_element == False:
                     file_2.write(line)
 
     return dst_file
@@ -331,10 +371,10 @@ def run_pandoc(src_file):
 
 def run_asciidoctor(src_file, doc_title):
     
-    #subprocess.call(['asciidoctor', src_file, "--trace"])
+    subprocess.call(['asciidoctor', '-b', 'html', src_file, "--trace"])
     #subprocess.call(['asciidoctor-web-pdf', src_file, "--trace"])
-    subprocess.call(['asciidoctor', '-o /../build/' + doc_title + '.html', src_file, "--trace"])
-    subprocess.call(['asciidoctor-web-pdf', '-f', src_file, '-t /../build/' + doc_title + '.pdf', "--trace"])
+    #subprocess.call(['asciidoctor', '-o /../build/' + doc_title + '.html', src_file, "--trace"])
+    #subprocess.call(['asciidoctor-web-pdf', '-f', src_file, '-t /../build/' + doc_title + '.pdf', "--trace"])
 
 # 'create_doc' takes an .adoc index file as input, which contains information on which section files to include in the final document.
 def create_doc(index_file):

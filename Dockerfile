@@ -20,6 +20,14 @@ RUN apt-get update && \
 
 RUN apt -y install nodejs
 
+# Asciidoctor-latex and pre-reqs
+RUN apt-get install -y libjs-mathjax
+
+RUN apt install -y texlive-full
+
+RUN gem install asciidoctor-latex --pre
+
+
 #RUN apt-get install -y git-core curl build-essential openssl libssl-dev \
 #    && git clone https://github.com/nodejs/node.git \
 #    && cd node \
@@ -37,7 +45,7 @@ RUN apt -y install npm
 
 RUN npm install npm@latest -g
 
-RUN npm i asciidoctor
+RUN npm i asciidoctor -v 2.0.15
 
 RUN npm i pagedjs
 

@@ -1,0 +1,20 @@
+The below example specifies one nodal load, applies the 1st current profile and
+tells that wind is not used. Subsequent sections give further details.
+
+\begin{lstlisting}[language=riflex, numbers=none, frame=LTRB,frameround=tttt,framesep=4pt,
+                                    xleftmargin=0cm,  xrightmargin=0cm,
+                                    caption={Static condition input.}]
+'**********************************************************************
+ STATIC CONDITION INPUT
+'**********************************************************************
+'nlcomp  icurin  curfac  iwindin
+ 1       1       1.0     0
+' static load components, units: kN/kNm
+' line-id ilseg ilnode/ilelm ildof rlmag  chicoo
+  shaft   2     1            4       1.0  LOCAL
+'
+'               lcons  = 1 : consistent load and mass formulation
+'               isolvr = 2 : sparse matrix storage
+' lcons isolvr
+  1     2
+\end{lstlisting}
